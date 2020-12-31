@@ -22,7 +22,7 @@ const apiVideoKey = process.env.apivideoKeyProd;
 
 
 
-app.get('/broadcast', (req, res) => {
+app.get('/', (req, res) => {
 	res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
 	//create apivideo client
 	const client = new apiVideo.Client({ apiKey: apiVideoKey });

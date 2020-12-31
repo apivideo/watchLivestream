@@ -26,4 +26,4 @@ On a request - if there is no parameter in the URL, it will default to the "pi l
 
 An API call is made to see if the stream "is broadcasting"  If true: the video is shown.  If false - the thumbnail appears.
 
-A second API call is made to the VOD endpoint to see if there are any saved videos. If there are videos: the first 5 are displayed.  NB:  Ifthere are >20 - they are all deleted.  I do this mostly to keep my demo accout from accumulating too many live stream video recordings.
+A second API call is made to the VOD endpoint to see if there are any saved videos. If there are videos: the first 5 are displayed.  NB:  If there are >20 - they are all deleted.  I do this mostly to keep my demo accout from accumulating too many live stream video recordings.

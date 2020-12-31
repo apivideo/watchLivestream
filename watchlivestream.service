@@ -1,5 +1,5 @@
 [Unit]
-Description=is.a.video/broadcasting
+Description=watch.a.video/broadcast
 After=network.target
 
 [Service]

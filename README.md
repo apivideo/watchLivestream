@@ -1,5 +1,5 @@
 # watchLivestream
-watch a livestream
+watch a video livestream
 
 
 This site runs on NodeJS
@@ -18,7 +18,7 @@ You can then add  a streamId query parameter with your livestream:
 
 For example, this url will show whatever video is playing at [livestream.a.video](https//:livestream.a.video):
 
-http://localhost:3003/broadcast?streamId=li400mYKSgQ6xs7taUeSaEKr
+https://watch.a.video/livestream/broadcast?streamId=li400mYKSgQ6xs7taUeSaEKr
 
 ### Under the hood
 

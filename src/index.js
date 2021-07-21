@@ -165,9 +165,10 @@ app.post("/receive_webhook", function (request, response) {
 	let body =request.body;
 	console.log((body));
 	 let headers = request.headers;
-	console.log("headers",headers);
+	//console.log("headers",headers);
 	let type = body.type;
 	let emittedAt = body.emittedAt;
+	webhookResponse = "";
 	if(type =="live-stream.broadcast.started"){
 		liveStreamId = body.liveStreamId;
 		liveStreamStatus = true;

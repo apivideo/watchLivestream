@@ -177,9 +177,13 @@ app.post("/receive_webhook", function (request, response) {
 		broadcastingStatus[liveStreamId]=liveStreamStatus;
 		//TODO - get the number of views at start
 		startViews = getLiveSessionCount(liveStreamId);
-		console.log("number of views when broadcast starts", startViews);
-		viewersAtStartOfStream[liveStreamId] = startViews;
-		webhookResponse = "event: " +type+ " at: "+ emittedAt+ " LiveStreamId: "+liveStreamId+ "  has started. There have been "+startViews+" at the beginnig";
+		startViews.then(function(startcounter){
+			console.log("number of views when broadcast starts", startcounter);
+			viewersAtStartOfStream[liveStreamId] = startcounter;
+			webhookResponse = "event: " +type+ " at: "+ emittedAt+ " LiveStreamId: "+liveStreamId+ "  has started. There have been "+startcounter+" at the beginnig";
+
+		});
+		
   
 	} else if (type =="live-stream.broadcast.ended"){
 		liveStreamId = body.liveStreamId;
@@ -192,11 +196,6 @@ app.post("/receive_webhook", function (request, response) {
 	//console.log(headers);
 	console.log("response",webhookResponse);
 
-	//now update the playback informtation
-
-  
-	var textResponse = 
-	webhooks.push(webhookResponse);
 	
 	response.sendStatus(200);  
   });

@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/dougsillars/watchLivestream#readme",
   "dependencies": {
+    "@api.video/nodejs-client": "^2.0.6",
     "@api.video/nodejs-sdk": "^1.8.5",
     "discord.js": "^12.5.1",
     "dotenv": "^8.2.0",
@@ -27,3 +28,5 @@
     "pug": "^3.0.0"
   }
 }
+
+

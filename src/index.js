@@ -15,20 +15,36 @@ app.use(express.static('public'));
 var request = require("request");
 
 //apivideo
-const apiVideo = require('@api.video/nodejs-sdk');
-
+//const apiVideo = require('@api.video/nodejs-sdk');
+const apiVideoClient = require('@api.video/nodejs-client');
 
 const apiVideoKey = process.env.apivideoKeyProd;
+const client = new apiVideoClient({ apiKey: apiVideoKey });
 
+//pi livestreamId
+var piLiveId = 'liEJzHaTzuWTSWilgL0MSJ9'
+//when the webhook fires broadcasting true - we'll add the value of the views to be 500 for testing
+viewersAtStartOfStream = { [piLiveId]: 500};
 
+//is the livestream going? Build JSON array of all livestreams
+//seed with pi livestream
+broadcastingStatus = {[piLiveId]: false};
+/*
+console.log(viewersAtStartOfStream);
+if(viewersAtStartOfStream.hasOwnProperty(piLiveId)){
+	console.log(viewersAtStartOfStream[piLiveId]);
+}else{
+	console.log("crap");
+}
+*/
 
 app.get('/', (req, res) => {
 	res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
 	//create apivideo client
-	const client = new apiVideo.Client({ apiKey: apiVideoKey });
 	
-	//pi livstream Id  is liEJzHaTzuWTSWilgL0MSJ9
-	var liveStreamId = 'liEJzHaTzuWTSWilgL0MSJ9';
+	
+	var numberOfWatchers = "";
+	var liveStreamId = piLiveId;
 	if(req.query.streamId){
 		liveStreamId=req.query.streamId;
 	}
@@ -38,33 +54,82 @@ app.get('/', (req, res) => {
 	var videoIframe = "";
 	var thumbnail = "";
 	//get this livestream
-	let result =client.lives.get(liveStreamId);
+	let result =client.liveStreams.get(liveStreamId);
 	result.then(function(liveStream){
 		console.log(liveStream);
 		var broadcasting = liveStream.broadcasting;
 		console.log(broadcasting);
-		var recordedVideos = [];		
+	
 		if(broadcasting){
 			liveResult = "Here is your Live Video:";
 			videoIframe = "iframe src=\""+liveStream.assets.player+"#autoplay\" width=\"100%\" height=\"50%\" frameborder=\"0\" scrolling=\"no\" allowfullscreen=\true\"";
 			
+			//get number of sessions when stream started
+			var startCount = viewersAtStartOfStream[liveStreamId];
+			var currentCount = getLiveSessionCount(liveStreamId);
+			currentCount.then(function(currentWatchCount){
+				console.log(startCount + " " + currentWatchCount);
+				numberOfWatchers = currentWatchCount - startCount;
+				console.log("numberOfWatchers", numberOfWatchers);
+				var vodVideoList =getVodList(liveStreamId);
+				vodVideoList.then(function(vodVideos){
+					return res.render('live', {liveResult, videoIframe, vodVideos, numberOfWatchers, liveStreamId});
+				})
+			});
 
 		}else{
 			videoIframe = "img src ="+liveStream.assets.thumbnail +" width=\"100%\"";
+			var vodVideoList =getVodList(liveStreamId);
+			vodVideoList.then(function(vodVideos){
+				return res.render('live', {liveResult, videoIframe, vodVideos, numberOfWatchers, liveStreamId});
+			})
 		}
 
 
-			//Now we can get the most recent VOD from the stream.
-		    let videoList = client.videos.search({'liveStreamId': liveStreamId, sortOrder: 'desc', sortBy: 'publishedAt'});
-			videoList.then(function(liveStreamList){
-				//console.log(liveStreamList);
 
+	}).catch((error) => {
+		console.log(error);
+	});
+});
+
+function getLiveSessionCount(liveStreamId){
+
+	return new Promise(function(resolve, reject){
+		console.log(liveStreamId);
+		var pageSize=1;
+		var currentPage = 1;
+		params = {
+			"liveStreamId": liveStreamId,
+			"pageSize":pageSize,
+			"currentPage":currentPage
+		}
+		//get all sessions for livestream
+		var sessionList = client.rawStatistics.listLiveStreamSessions(params);
+		sessionList.then(function(liveSessionList){
+			//get total sessoin 
+			var sessionCount = liveSessionList.pagination.itemsTotal;
+			console.log("live sessions" , sessionCount);
+			resolve(sessionCount);
+		}).catch((error) =>{
+			reject(error);
+		});
+	});	
+}
+function getVodList(livestreamId){
+		return new Promise(function(resolve, reject){
+				//Now we can get the most recent VOD from the stream.
+				var recordedVideos = [];	
+		    let videoList = client.videos.list({'liveStreamId': livestreamId, sortOrder: 'desc', sortBy: 'publishedAt'});
+			videoList.then(function(liveStreamList){
+			//	console.log(liveStreamList.data);
+				liveVideoList = liveStreamList.data;
 				//loop through all the videos, we'll show 5, ad if there are more than 20 - delete them
 				
-				for(i=0; i< liveStreamList.length; i++){
+				for(i=0; i< liveVideoList.length; i++){
+					
 					if(i<5){
-						var iframe = "iframe src=\""+liveStreamList[i].assets.player+"\" width=\"50%\" height=\"25%\" frameborder=\"0\" scrolling=\"no\" allowfullscreen=\true\"";
-						var name = liveStreamList[i].title;
+						var iframe = "iframe src=\""+liveVideoList[i].assets.player+"\" width=\"50%\" height=\"25%\" frameborder=\"0\" scrolling=\"no\" allowfullscreen=\true\"";
+						var name = liveVideoList[i].title;
 						var data = {
 							"name": name, 
 							"iframe":iframe
@@ -72,7 +137,7 @@ app.get('/', (req, res) => {
 						recordedVideos.push(data);
 					}else if(i>20){
 						//delete the videos...
-						var videoId = liveStreamList[i].videoId;
+						var videoId = liveVideoList[i].videoId;
 						let deleteVid = client.videos.delete(videoId);
 						deleteVid.then(function(statusCode) {
 		  					console.log(videoId, "deleted");
@@ -86,28 +151,81 @@ app.get('/', (req, res) => {
 				}
 				//now we have an array with all the videos to show:
 				console.log(recordedVideos);
-				return res.render('live', {liveResult, videoIframe, recordedVideos});
+				resolve(recordedVideos);
 			}).catch((err) => {
 				console.log(err);
 			});
-
+		});
+	}
+//get webhook
+app.post("/receive_webhook", function (request, response) {
+	console.log("new video event from api.video");
+  
+	let event = request.body;
+	let body =request.body;
+	console.log((body));
+	 let headers = request.headers;
+	console.log("headers",headers);
+	let type = body.type;
+	let emittedAt = body.emittedAt;
+	if(type =="live-stream.broadcast.started"){
+		liveStreamId = body.liveStreamId;
+		liveStreamStatus = true;
+		webhookResponse = "event: " +type+ " at: "+ emittedAt+ " LiveStream,Id: "+liveStreamId+ "  has started.";
 		
-		
+		//change the broadcasting status in the JSON pbject
+		broadcastingStatus[liveStreamId]=liveStreamStatus;
+		//TODO - get the number of views at start
+		startViews = getLiveSessionCount(liveStreamId);
+		console.log("number of views when broadcast starts", startViews);
+		viewersAtStartOfStream[liveStreamId] = startViews;
+		webhookResponse = "event: " +type+ " at: "+ emittedAt+ " LiveStreamId: "+liveStreamId+ "  has started. There have been "+startViews+" at the beginnig";
+  
+	} else if (type =="live-stream.broadcast.ended"){
+		liveStreamId = body.liveStreamId;
+		liveStreamStatus = false;
+		broadcastingStatus[piLiveId]=liveStreamStatus;
+		webhookResponse = "event: " +type+ " at: "+ emittedAt+ " LiveStreamId: "+liveStreamId+ "  has stopped.";
+  
+	}
+	
+	//console.log(headers);
+	console.log("response",webhookResponse);
+
+	//now update the playback informtation
+
+  
+	var textResponse = 
+	webhooks.push(webhookResponse);
+	
+	response.sendStatus(200);  
+  });
+  
+// Send list of the new count of viewers every x seconds
+app.get("/get_livecount", function (request, response) {
 
 
+	var LiveId = request.query.live;
+	console.log("LiveId", LiveId);
+	console.log(viewersAtStartOfStream);
+	startCount = viewersAtStartOfStream[LiveId];
+	console.log("startCount", startCount);
+	//we have liveid get new user count
+	var currentCount = getLiveSessionCount(LiveId);
+			currentCount.then(function(currentWatchCount){
 
-		
-
-	}).catch((error) => {
-		console.log(error);
-	});
-});
-
-
-
+				console.log(startCount + " " + currentWatchCount);
+				numberOfWatchers = currentWatchCount - startCount;
+				console.log("numberOfWatchers", numberOfWatchers);
+				response.send("There are " +numberOfWatchers + " watching this stream!");
+			}).catch((err) => {
+				console.log(err);
+			});
+  });
+  
 
 //testing on 3003
-app.listen(3003, () =>
+app.listen(process.env.PORT || 3003, () =>
   console.log('Example app listening on port 3003!'),
 );
 process.on('uncaughtException', function(err) {

@@ -1,6 +1,7 @@
 head
  title watch a livestream
  script(async src='https://www.googletagmanager.com/gtag/js?id=G-N9E9YP1HGF')
+ script(src = "client.js")
  script. 
    var __nspid="isrtzw";
    var __nsptags=[];
@@ -27,9 +28,11 @@ body
       Watch a livestream
     h2 #{liveResult}
     #{videoIframe}
+    div(id="livestreamid" style="display:none;") #{liveStreamId}
+    div(id="watchers") There are #{numberOfWatchers} watching this stream!
     p 
     h2 Here are the 5 most recent recordings:
-    for videos in recordedVideos
+    for videos in vodVideos
         #{videos.iframe}
         p #{videos.name}  
 	

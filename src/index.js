@@ -29,6 +29,7 @@ viewersAtStartOfStream = { [piLiveId]: 500};
 //is the livestream going? Build JSON array of all livestreams
 //seed with pi livestream
 broadcastingStatus = {[piLiveId]: false};
+var startCount=0;
 /*
 console.log(viewersAtStartOfStream);
 if(viewersAtStartOfStream.hasOwnProperty(piLiveId)){
@@ -41,7 +42,7 @@ if(viewersAtStartOfStream.hasOwnProperty(piLiveId)){
 app.get('/', (req, res) => {
 	res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
 	//create apivideo client
-	var startCount=0;
+	
 	
 	var numberOfWatchers = "";
 	var liveStreamId = piLiveId;

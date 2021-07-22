@@ -28,6 +28,7 @@ viewersAtStartOfStream = { [piLiveId]: 500};
 
 //is the livestream going? Build JSON array of all livestreams
 //seed with pi livestream
+broadcastingStatus = new Set;
 broadcastingStatus = {[piLiveId]: false};
 var startCount=0;
 /*
@@ -51,6 +52,7 @@ app.get('/', (req, res) => {
 	}
 
 	//assume that it is not broadcasting
+	broadcastingStatus = {[liveStreamId]: false};
 	var liveResult = "The camera is not currently livestreaming. Please try again later.";
 	var videoIframe = "";
 	var thumbnail = "";
@@ -62,6 +64,7 @@ app.get('/', (req, res) => {
 		console.log(broadcasting);
 	
 		if(broadcasting){
+			broadcastingStatus[liveStreamId] = true;	
 			liveResult = "Here is your Live Video:";
 			videoIframe = "iframe src=\""+liveStream.assets.player+"#autoplay\" width=\"100%\" height=\"50%\" frameborder=\"0\" scrolling=\"no\" allowfullscreen=\true\"";
 			

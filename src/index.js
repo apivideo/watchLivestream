@@ -206,7 +206,7 @@ app.post("/receive_webhook", function (request, response) {
   });
   
 // Send list of the new count of viewers every x seconds
-app.get("/broadcast/get_livecount", function (request, response) {
+app.get("get_livecount", function (request, response) {
 
 
 	var LiveId = request.query.live;

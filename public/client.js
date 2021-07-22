@@ -3,7 +3,7 @@ window.onload =function() {
         var liveId = document.getElementById("livestreamid").innerHTML;
     //    console.log("liveId", liveId);
         var oReq = new XMLHttpRequest();
-        const url ="/broadcast/get_livecount?live=" + liveId;
+        const url ="broadcast/get_livecount?live=" + liveId;
         oReq.open("GET", url, true);
         
         oReq.onload = function (oEvent) {

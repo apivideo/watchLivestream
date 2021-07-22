@@ -41,7 +41,7 @@ if(viewersAtStartOfStream.hasOwnProperty(piLiveId)){
 app.get('/', (req, res) => {
 	res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
 	//create apivideo client
-	
+	var startCount=0;
 	
 	var numberOfWatchers = "";
 	var liveStreamId = piLiveId;
@@ -65,7 +65,7 @@ app.get('/', (req, res) => {
 			videoIframe = "iframe src=\""+liveStream.assets.player+"#autoplay\" width=\"100%\" height=\"50%\" frameborder=\"0\" scrolling=\"no\" allowfullscreen=\true\"";
 			
 			//get number of sessions when stream started
-			var startCount = viewersAtStartOfStream[liveStreamId];
+			startCount = viewersAtStartOfStream[liveStreamId];
 			var currentCount = getLiveSessionCount(liveStreamId);
 			currentCount.then(function(currentWatchCount){
 				console.log(startCount + " " + currentWatchCount);

@@ -227,7 +227,7 @@ app.get("get_livecount", function (request, response) {
 			});
   });
 
-  app.get("test", function (request, response) {
+  app.get("/test", function (request, response) {
 		return response.render("test");
   });
   

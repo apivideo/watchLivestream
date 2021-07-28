@@ -40,7 +40,7 @@ if(viewersAtStartOfStream.hasOwnProperty(piLiveId)){
 }
 */
 
-app.get('/', (req, res) => {
+app.get('/broadcast', (req, res) => {
 	res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
 	//create apivideo client
 	
@@ -162,7 +162,7 @@ function getVodList(livestreamId){
 		});
 	}
 //get webhook
-app.post("/receive_webhook", function (request, response) {
+app.post("/broadcast/receive_webhook", function (request, response) {
 	console.log("new video event from api.video");
   
 	let event = request.body;
@@ -207,7 +207,7 @@ app.post("/receive_webhook", function (request, response) {
   });
   
 // Send list of the new count of viewers every x seconds
-app.get("/get_livecount", function (request, response) {
+app.get("broadcast/get_livecount", function (request, response) {
 
 
 	var LiveId = request.query.live;

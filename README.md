@@ -11,7 +11,8 @@
 [api.video](https://api.video) is the video infrastructure for product builders. Lightning fast video APIs for integrating, scaling, and managing on-demand & low latency live streaming features in your app.
 
 # watchLivestream
-watch a video livestream
+Watch a video livestream
+
 Try it out [watch.a.video/livestream](https://watch.a.video/livestream)
 
 This site runs on NodeJS
@@ -26,7 +27,7 @@ To create your own:
 
 This will launch a site at localhost:3003
 
-You can then add  a streamId query parameter with your livestream:
+You can then add a streamId query parameter with your livestream:
 
 For example, this url will show whatever video is playing at [livestream.a.video](https//:livestream.a.video):
 
